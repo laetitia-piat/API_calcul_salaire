@@ -52,10 +52,14 @@ def calculate(data: SalaryInput):
             salaireNet = salaireBrut * 0.769
         case "Diabeto":
             salaireBase = 12.45 * heuresTravaillees
-            revalorisationSegur =  (heuresTravaillees / 151.67) * 238
+            print(salaireBase)
+            revalorisationSegur =  (heuresTravaillees / 160) * 238
+            print(revalorisationSegur)
             indemnitePrecarite = (salaireBase + revalorisationSegur) * 0.10
-            indemniteCongesPayes = (salaireBase + indemnitePrecarite) *0.10
-            salaireBrut = salaireBase  + indemnitePrecarite + indemniteCongesPayes
+            print(indemnitePrecarite)
+            indemniteCongesPayes = (salaireBase + revalorisationSegur + indemnitePrecarite) *0.10
+            print(indemniteCongesPayes)
+            salaireBrut = salaireBase  + revalorisationSegur +indemnitePrecarite + indemniteCongesPayes
             salaireNet = salaireBrut * 0.782
         case _:
             return {"error": "Type inconnu"}
