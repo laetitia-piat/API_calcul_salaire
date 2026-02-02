@@ -23,6 +23,7 @@ app.add_middleware(
 class SalaryInput(BaseModel):
     heures: float
     heures_dimanche: float
+    type: str
 
 
 TAUX_HORAIRE = float(os.getenv("TAUX_HORAIRE", "12.2561"))   
@@ -36,25 +37,34 @@ def health():
 def calculate(data: SalaryInput):
     heuresTravaillees = data.heures
     heuresDimanches = data.heures_dimanche
+    type = data.type
+    match type:
+        case "Tamaris": 
+            salaireBaseMensu = TAUX_HORAIRE * 151.67
+            absenceEntreeSortie = (151.67 - heuresTravaillees) * 13.8253
+            salaireBase = salaireBaseMensu - absenceEntreeSortie
+            indeminteSujetion = 0.0921 * (heuresTravaillees * TAUX_HORAIRE)
+            majorationDimanche =heuresDimanches * MAJORATION_DIMANCHE
+            indemnitePrecarite = 0.10* (salaireBase + indeminteSujetion + majorationDimanche +238)
+            indemniteCongesPayes = 0.10 * (salaireBase + indeminteSujetion + majorationDimanche + indemnitePrecarite+238)
+            salaireBrut = salaireBase + indeminteSujetion + majorationDimanche + indemnitePrecarite + indemniteCongesPayes + 238
+            salaireNet = salaireBrut * 0.769
+        case "Diabeto":
+            salaireBase = 12.45 * heuresTravaillees
+            #majorationDimanche = heuresDimanches * MAJORATION_DIMANCHE
+            revalorisationSegur =  salaireBase /1.4836
+            indemnitePrecarite = (salaireBase + revalorisationSegur) * 0.10
+            indemniteCongesPayes = 0.10 * (salaireBase + indemnitePrecarite)
+            salaireBrut = salaireBase  + indemnitePrecarite + indemniteCongesPayes
+            salaireNet = salaireBrut * 0.782
+        case _:
+            return {"error": "Type inconnu"}
 
-    salaireBaseMensu = TAUX_HORAIRE * 151.67
-    absenceEntreeSortie = (151.67 - heuresTravaillees) * 13.8253
-    salaireBase = salaireBaseMensu - absenceEntreeSortie
-    indeminteSujetion = 0.0921 * (heuresTravaillees * TAUX_HORAIRE)
-    majorationDimanche =heuresDimanches * MAJORATION_DIMANCHE
-
-    indemnitePrecarite = 0.10* (salaireBase + indeminteSujetion + majorationDimanche +238)
-    indemniteCongesPayes = 0.10 * (salaireBase + indeminteSujetion + majorationDimanche + indemnitePrecarite+238)
-
-    salaireBrut = salaireBase + indeminteSujetion + majorationDimanche + indemnitePrecarite + indemniteCongesPayes + 238
-    salaireNet = salaireBrut * 0.769
 
 
     return {
         "heures_normales": heuresTravaillees - heuresDimanches,
         "heures_dimanche": heuresDimanches,
-        "taux_horaire": TAUX_HORAIRE,
-        "majoration_dimanche": MAJORATION_DIMANCHE,
         "salaire_net": round(salaireNet, 2),
         "salaire_brut": round(salaireBrut, 2)
     }
