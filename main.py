@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Autorise Next en local
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -13,31 +12,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Modèle d'entrée
 class SalaryInput(BaseModel):
     heures: float
     heures_dimanche: float
 
-# --- Variables "métier" (à personnaliser)
-TAUX_HORAIRE = 25.0          # ex: 25€ / heure
-MAJORATION_DIMANCHE = 0.5    # ex: +50% le dimanche
+
+TAUX_HORAIRE = 12.2561      
+MAJORATION_DIMANCHE = 7.86
 
 @app.post("/calculate")
 def calculate(data: SalaryInput):
-    heures_normales = max(0.0, data.heures - data.heures_dimanche)
-    h_dim = max(0.0, data.heures_dimanche)
+    heuresTravaillees = float(input("Heures travaillées: "))
+    heuresDimanches = float(input("Heures travaillées le dimanche: "))
 
-    salaire_normal = heures_normales * TAUX_HORAIRE
-    salaire_dimanche = h_dim * TAUX_HORAIRE * (1 + MAJORATION_DIMANCHE)
+    salaireBaseMensu = TAUX_HORAIRE * 151.67
+    absenceEntreeSortie = (151.67 - heuresTravaillees) * 13.8253
+    salaireBase = salaireBaseMensu - absenceEntreeSortie
+    indeminteSujetion = 0.0921 * (heuresTravaillees * 12.2561)
+    majorationDimanche =heuresDimanches * MAJORATION_DIMANCHE
 
-    total = salaire_normal + salaire_dimanche
+    indemnitePrecarite = 0.10* (salaireBase + indeminteSujetion + majorationDimanche +238)
+    indemniteCongesPayes = 0.10 * (salaireBase + indeminteSujetion + majorationDimanche + indemnitePrecarite+238)
+
+    salaireBrut = salaireBase + indeminteSujetion + majorationDimanche + indemnitePrecarite + indemniteCongesPayes + 238
+    salaireNet = salaireBrut * 0.769
+
 
     return {
-        "heures_normales": heures_normales,
-        "heures_dimanche": h_dim,
+        "heures_normales": heuresTravaillees - heuresDimanches,
+        "heures_dimanche": heuresDimanches,
         "taux_horaire": TAUX_HORAIRE,
         "majoration_dimanche": MAJORATION_DIMANCHE,
-        "salaire_normal": round(salaire_normal, 2),
-        "salaire_dimanche": round(salaire_dimanche, 2),
-        "total": round(total, 2),
+        "salaire_net": round(salaireNet, 2),
+        "salaire_brut": round(salaireBrut, 2)
     }
