@@ -7,7 +7,7 @@ Elle permet de calculer le **salaire brut et net** à partir :
 
 - du nombre d’heures travaillées
 - du nombre d’heures effectuées le dimanche
-- du type de vacation (ex : _Tamaris_, _Diabeto_)
+- du lieu de vacation
 
 ---
 
@@ -43,27 +43,9 @@ Elle permet de calculer le **salaire brut et net** à partir :
 
 API_Vac/
 ├── main.py # Application FastAPI
-├── requirements.txt # Dépendances Python
+├── requirements.txt
+├── LICENCE
 └── README.md
-
----
-
-## ▶️ Lancer l’API en local
-
-uvicorn main:app --reload --port 8000
-
-1️⃣ Créer un environnement virtuel
-python -m venv .venv
-source .venv/bin/activate # Windows : .venv\Scripts\activate
-
-2️⃣ Installer les dépendances
-pip install -r requirements.txt
-
-3️⃣ Lancer le serveur
-uvicorn main:app --reload --port 8000
-
-📍 API disponible sur :
-http://localhost:8000
 
 ---
 
@@ -88,24 +70,11 @@ Corps de la requête
 }
 Réponse
 {
-"heures_normales": 104,
+"heures": 120,
 "heures_dimanche": 16,
 "salaire_net": 1850.32,
 "salaire_brut": 2405.78
 }
-
----
-
-## ⚙️ Variables d’environnement
-
-Variable Description Valeur par défaut
-TAUX_HORAIRE Taux horaire de base 12.2561
-MAJORATION_DIMANCHE Majoration dimanche 7.86
-FRONTEND_ORIGINS Origins autorisées pour CORS http://localhost:3000
-
-Exemple :
-
-FRONTEND_ORIGINS=http://localhost:3000,https://mon-front.vercel.app
 
 ---
 
